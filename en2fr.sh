@@ -6,28 +6,50 @@
 # Sub-section budget,splurge,etc
 # Link in Wikidata
 # Improve IsPartOf: name in local language, go up if does not exist
+# Add {{Traduction/Référence|projet=Wikivoyage|en|Aarhus|2486758}}
 
-TITLE="Aarhus"
+TITLE=$1
 CSV="../wikivoyage2osm/enwikivoyage-20140101-pages-articles.xml.csv"
 
 # Download live English wikicode for non-POI data
 WIKICODE=`mktemp`
-wget -O $WIKICODE "https://en.wikivoyage.org/w/index.php?title=Aarhus&action=raw"
+wget -O $WIKICODE "https://en.wikivoyage.org/w/index.php?title=$TITLE&action=raw"
 
 # Find first image of the page, to use in infobox
 FIRST_IMAGE=`grep -m 1 "\[\[File:" $WIKICODE | sed -e "s/.*\[\[File://" | sed -e "s/\]\]//" | sed -e "s/|.*//"`
-ISPARTOF=`grep -i -m 1 "IsPartOf" $WIKICODE | sed -e "s/.*IsPartOf|//" | sed -e "s/}.*//"`
+ISPARTOF=`grep -i -m 1 "IsPartOf" $WIKICODE | sed -e "s/.*sPartOf|//" | sed -e "s/}.*//"`
 
 # Find images contained in each section
 SECTION=""
 IMAGES=`mktemp`
 cat $WIKICODE | grep "^==\|^\[\[File:" | while read LINE; do
-  if [[ "$LINE" =~ ^==See ]]
+  if [[ "$LINE" =~ ^==Understand ]]
+  then
+    SECTION="understand"
+  elif [[ "$LINE" =~ ^==Get\ in ]]
+  then
+    SECTION="getin"
+  elif [[ "$LINE" =~ ^==Get\ around ]]
+  then
+    SECTION="getaround"
+  elif [[ "$LINE" =~ ^==See ]]
   then
     SECTION="see"
   elif [[ "$LINE" =~ ^==Do ]]
   then
     SECTION="do"
+  elif [[ "$LINE" =~ ^==Buy ]]
+  then
+    SECTION="buy"
+  elif [[ "$LINE" =~ ^==Eat ]]
+  then
+    SECTION="eat"
+  elif [[ "$LINE" =~ ^==Drink ]]
+  then
+    SECTION="drink"
+  elif [[ "$LINE" =~ ^==Sleep ]]
+  then
+    SECTION="sleep"
   elif [[ "$LINE" =~ File ]]
   then
     IMAGE=`echo $LINE | sed -e "s/thumb|.*\]\]/thumb\]\]/"`
@@ -37,7 +59,7 @@ done
 
 echo "{{Bannière page}}
 {{Info Ville
-| nom=
+| nom=$TITLE
 | nom local=
 | région=
 | image=$FIRST_IMAGE
@@ -67,12 +89,15 @@ echo "{{Bannière page}}
 
 '''$TITLE''' est une ville dans [[$ISPARTOF]].
 
-== Comprendre ==
+== Comprendre =="
 
-== Aller ==
+cat "${IMAGES}understand"
 
-== Circuler ==
-"
+echo "== Aller =="
+cat "${IMAGES}getin"
+
+echo "== Circuler =="
+cat "${IMAGES}getaround"
 
 # Parse POIs
 POIS=`mktemp`
@@ -114,7 +139,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Voir
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -145,7 +170,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Faire
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -176,7 +201,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Acheter
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -207,7 +232,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Manger
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -238,7 +263,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Boire
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -269,7 +294,7 @@ while read POI; do
   CONTENT=${DETAILS[16]}
   echo "* {{Se loger
 | nom=$NAME | alt=$ALT | url=$URL | wikipédia= | facebook= | twitter= | email=$EMAIL
-| adresse=$ADDRESS | latitude=$LAT | longitude=$LONG | direction=
+| adresse=$ADDRESS | latitude=$LAT | longitude=$LON | direction=
 | image=$IMAGE
 | téléphone=$PHONE | téléphone portable= | numéro gratuit=$TOLLFREE | fax=$FAX | horaire= | prix=
 | description=
@@ -281,6 +306,7 @@ echo "
 
 == Aux environs ==
 
+{{Avancement|statut=esquisse|type=ville}}
 {{Dans|$ISPARTOF}}
 "
 
