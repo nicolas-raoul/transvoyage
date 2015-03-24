@@ -3,7 +3,7 @@ transvoyage
 
 Transform Wikivoyage article from a language to another.
 
-== How to use the script ==
+## How to use the script
 
 - Use Ubuntu or another Linux. Might work on Mac too.
 - Download latest English Wikivoyage listings CSV from http://datahub.io/dataset/wikivoyage-listings-as-csv
@@ -11,7 +11,7 @@ Transform Wikivoyage article from a language to another.
 - If you want to generate Toronto, execute in a terminal: ./en2fr.sh Toronto
 - The last output line tells you the output file. Open that file and paste to Wikivoyage.
 
-== How to adapt the script for other languages ==
+## How to adapt the script for other languages
 
 You can easily adapt the script to transform English→Italian or English→Hebrew for instance (the source has to be English, transforming from another language than English would be much more difficult).
 
